@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SecondLife</string>
+    <string name="git">Git</string>
+    <string name="project">Project</string>
+</resources>
