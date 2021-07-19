@@ -33,22 +33,33 @@ public class ExampleIntentService extends IntentService {
         long input = intent.getLongExtra("time", 0);
         String work = intent.getStringExtra("work");
 
-        long hour = (input / 3600000) % 24;
-        long min = (input / 60000) % 60;
-        long sec = (input / 1000) % 60;
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, min, sec);
+        long hour, min, sec;
+        StringBuilder timeLeftFormatted;
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
-        Notification notification = new NotificationCompat.Builder(this, App.CHANNEL_ID)
-                .setContentTitle(work)
-                .setContentText(timeLeftFormatted)
-                .setSmallIcon(R.drawable.ic_android)
-                .setContentIntent(pendingIntent)
-                .build();
 
-        startForeground(1, notification);
+        for (long i = input; i > 0 ; i-=1000) {
+            hour = (i / 3600000) % 24;
+            min = (i / 60000) % 60;
+            sec = (i / 1000) % 60;
+            timeLeftFormatted = new StringBuilder(String.format(Locale.getDefault(),
+                                            "%02d:%02d:%02d", hour, min, sec));
+            Notification notification = new NotificationCompat.Builder(this, App.CHANNEL_ID)
+                    .setContentTitle(work)
+                    .setContentText(timeLeftFormatted)
+                    .setSmallIcon(R.drawable.ic_android)
+                    .setContentIntent(pendingIntent)
+                    .build();
+
+            startForeground(1, notification);
+            SystemClock.sleep(1000);
+        }
+
+
+
+
     }
 
     @Override

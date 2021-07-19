@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void git(View view) {
-        Intent serviceIntent = new Intent(this, ExampleService.class);
+        Intent serviceIntent = new Intent(this, ExampleIntentService.class);
         serviceIntent.putExtra("time", workTime);
         serviceIntent.putExtra("work", "Git");
 
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void project(View view) {
-        Intent serviceIntent = new Intent(this, ExampleService.class);
+        Intent serviceIntent = new Intent(this, ExampleIntentService.class);
         serviceIntent.putExtra("time", projectworkTime);
         serviceIntent.putExtra("work", "Project");
 
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopService(View view) {
-        Intent serviceIntent = new Intent(this, ExampleService.class);
+        Intent serviceIntent = new Intent(this, ExampleIntentService.class);
         stopService(serviceIntent);
     }
 }
