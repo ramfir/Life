@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.CountDownTimer;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -14,7 +15,7 @@ import java.util.Locale;
 
 public class ExampleIntentService extends IntentService {
     private static final String TAG = "ExampleIntentService";
-
+    private PowerManager.WakeLock mWakeLock;
     public ExampleIntentService() {
         super("ExampleIntentService");
         setIntentRedelivery(true);
@@ -24,6 +25,10 @@ public class ExampleIntentService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Exampe:Wakelock");
+        mWakeLock.acquire();
+        Log.d(TAG, "WakeLock acquired");
     }
 
     @Override
@@ -51,6 +56,9 @@ public class ExampleIntentService extends IntentService {
                     .setContentText(timeLeftFormatted)
                     .setSmallIcon(R.drawable.ic_android)
                     .setContentIntent(pendingIntent)
+                    .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
+                    .setVibrate(/*new long[]{ 0 }*/new long[] { 0, 1000, 1000, 0, 1000 })
+                    .setDefaults(Notification.DEFAULT_SOUND)
                     .build();
 
             startForeground(1, notification);
@@ -66,5 +74,7 @@ public class ExampleIntentService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
+        mWakeLock.release();
+        Log.d(TAG, "WakeLock released");
     }
 }
