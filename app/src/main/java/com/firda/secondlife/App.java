@@ -22,7 +22,8 @@ public class App extends Application {
                     "Exmaple Service Channel",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-
+            serviceChannel.setVibrationPattern(/*new long[] { 1000, 1000, 1000, 1000, 1000 }*/new long[]{ 0 });
+            serviceChannel.enableVibration(true);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
         }

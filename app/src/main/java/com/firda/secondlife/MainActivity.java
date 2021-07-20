@@ -15,8 +15,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView gitTime, projectTime;
     Button gitButton, projectButton;
-    long workTime = 10800000;
-    long projectworkTime = 10800000;
+    /*public static */long workTime = 10800000;
+    /*public static */long projectworkTime = 10800000;
     CountDownTimer mCountDownTimer;
 
     @Override
