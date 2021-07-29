@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,40 +15,47 @@ import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity {
 
+    /*public static final String testString = "Project";
+    public static final long testLong = 5000;
+    public static int works = 2;
     TextView gitTime, projectTime;
     Button gitButton, projectButton;
-    /*public static */long workTime = 10800000;
-    /*public static */long projectworkTime = 10800000;
-    CountDownTimer mCountDownTimer;
+    *//*public static *//*long workTime = 5000;//10800000;
+    *//*public static *//*long projectworkTime = 5000;//10800000;
+    CountDownTimer mCountDownTimer;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        gitTime = findViewById(R.id.gitTextView);
+        RecyclerView myRecyclerView = findViewById(R.id.my_recycler);
+        CaptionedAdapter adapter = new CaptionedAdapter(Job.jobs);
+        myRecyclerView.setAdapter(adapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        myRecyclerView.setLayoutManager(layoutManager);
+
+        adapter.setListener(new CaptionedAdapter.Listener() {
+            @Override
+            public void onClick(int position) {
+                Intent serviceIntent = new Intent(getApplicationContext(), ExampleIntentService.class);
+                serviceIntent.putExtra("time", (long)(Job.jobs.get(position).getLength()*3600000));
+                serviceIntent.putExtra("work", Job.jobs.get(position).getTitle());
+
+                startService(serviceIntent);
+            }
+        });
+        /*gitTime = findViewById(R.id.gitTextView);
         projectTime = findViewById(R.id.projectTextView);
         gitButton = findViewById(R.id.gitButton);
         projectButton = findViewById(R.id.projectButton);
 
         updateTextView(gitTime, workTime);
-        updateTextView(projectTime, projectworkTime);
+        updateTextView(projectTime, projectworkTime);*/
 
-        /*new CountDownTimer(30000, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                updateTextView(gitTime, millisUntilFinished);
-            }
-
-            @Override
-            public void onFinish() {
-                gitTime.setText("00:00:00");
-            }
-        }.start();*/
     }
 
-    void updateTextView(TextView view, long milliSeconds) {
+   /* void updateTextView(TextView view, long milliSeconds) {
         NumberFormat f = new DecimalFormat("00");
         long hour = (milliSeconds / 3600000) % 24;
         long min = (milliSeconds / 60000) % 60;
@@ -60,25 +69,6 @@ public class MainActivity extends AppCompatActivity {
         serviceIntent.putExtra("work", "Git");
 
         startService(serviceIntent);
-       /* if (mCountDownTimer != null) {
-            mCountDownTimer.cancel();
-            projectButton.setEnabled(true);
-        }
-        mCountDownTimer = new CountDownTimer(workTime, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                workTime = millisUntilFinished;
-                updateTextView(gitTime, millisUntilFinished);
-            }
-
-            @Override
-            public void onFinish() {
-                gitTime.setText("00:00:00");
-            }
-        };
-        mCountDownTimer.start();
-        gitButton.setEnabled(false);*/
     }
 
     public void project(View view) {
@@ -87,29 +77,12 @@ public class MainActivity extends AppCompatActivity {
         serviceIntent.putExtra("work", "Project");
 
         startService(serviceIntent);
-        /*if (mCountDownTimer != null) {
-            mCountDownTimer.cancel();
-            gitButton.setEnabled(true);
-        }
-        mCountDownTimer = new CountDownTimer(projectworkTime, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                projectworkTime = millisUntilFinished;
-                updateTextView(projectTime, millisUntilFinished);
-            }
-
-            @Override
-            public void onFinish() {
-                gitTime.setText("00:00:00");
-            }
-        };
-        mCountDownTimer.start();
-        projectButton.setEnabled(false);*/
-    }
+    }*/
 
     public void stopService(View view) {
         Intent serviceIntent = new Intent(this, ExampleIntentService.class);
         stopService(serviceIntent);
+
+        //works = 2;
     }
 }

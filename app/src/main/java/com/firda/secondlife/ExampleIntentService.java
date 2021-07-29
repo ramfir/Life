@@ -122,5 +122,14 @@ public class ExampleIntentService extends IntentService {
 
         serviceRunning = false;// mNotificationManager.cancelAll();
         //startForeground(1, null);
+
+        /*MainActivity.works--;
+        if (MainActivity.works > 0) {
+            Intent serviceIntent = new Intent(this, ExampleIntentService.class);
+            serviceIntent.putExtra("time", MainActivity.testLong);
+            serviceIntent.putExtra("work", MainActivity.testString);
+
+            startService(serviceIntent);
+        }*/
     }
 }
