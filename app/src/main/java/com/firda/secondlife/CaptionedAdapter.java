@@ -24,7 +24,6 @@ public class CaptionedAdapter extends
     }
 
     private List<Job> jobs;
-        Scanner scanner = new Scanner(System.in);
 
     public CaptionedAdapter(List<Job> jobs) {
         this.jobs = jobs;
@@ -67,7 +66,7 @@ public class CaptionedAdapter extends
         long hour = (long) (jobs.get(position).getLength());
         long min = (long) ((jobs.get(position).getLength()-hour)*60);
         long sec = 0;*/
-        long milliSeconds = (long) (jobs.get(position).getLength()*3600000);
+        long milliSeconds = (long) (jobs.get(position).getLength());
         NumberFormat f = new DecimalFormat("00");
         long hour = (milliSeconds / 3600000) % 24;
         long min = (milliSeconds / 60000) % 60;

@@ -7,13 +7,19 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -22,7 +28,6 @@ public class JobFragment extends Fragment implements View.OnClickListener {
     TextView mTextView;
     EditText title;
     EditText length;
-    List<Job> jobs;
     Button nextButton;
 
     public JobFragment() {
@@ -50,9 +55,8 @@ public class JobFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initialize(View view) {
-        jobs = Job.jobs;
         mTextView = view.findViewById(R.id.textView);
-        mTextView.setText("Enter the title and length of Job №" + String.valueOf(jobs.size()+1));
+        mTextView.setText("Enter the title and length of Job №" + String.valueOf(Job.jobs.size()+1));
         title = view.findViewById(R.id.titleEditText);
         length = view.findViewById(R.id.lengthEditText);
         nextButton = view.findViewById(R.id.nextButton);
@@ -62,8 +66,17 @@ public class JobFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == nextButton.getId()) {
-            jobs.add(new Job(title.getText().toString(), Double.valueOf(length.getText().toString())));
-            if (jobs.size() == SetupActivity.jobsSize) {
+            String str = length.getText().toString();
+            DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+            Date date;
+            try {
+                date = formatter.parse(str);
+            } catch (ParseException e) {
+                Toast.makeText(getActivity(),"Wrong time format", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Job.jobs.add(new Job(title.getText().toString(), date.getHours()*3600000+date.getMinutes()*60000+date.getSeconds()*1000));
+            if (Job.jobs.size() == SetupActivity.jobsSize) {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
             } else {

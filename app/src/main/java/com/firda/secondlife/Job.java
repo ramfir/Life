@@ -6,14 +6,11 @@ import java.util.List;
 
 public class Job {
     String title;
-    double length;
+    long length;
 
-    public static List<Job> jobs = new ArrayList<>() /* = Arrays.asList(
-            new Job("Git", 1),
-            new Job("Project", 2),
-            new Job("SQL", 1))*/;
+    public static List<Job> jobs = new ArrayList<>();
 
-    Job(String title, double length) {
+    Job(String title, long length) {
         this.title = title;
         this.length = length;
     }
@@ -22,7 +19,10 @@ public class Job {
         return title;
     }
 
-    public double getLength() {
+    public long getLength() {
         return length;
     }
+
+    public void setLength(long length) { this.length = length; }
+    public void setTitle(String title) { this.title = title; }
 }

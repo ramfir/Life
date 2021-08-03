@@ -14,9 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity">
 
-        <service android:name=".ExampleService" />
+        </activity>
+
         <service android:name=".ExampleIntentService" />
 
         <activity android:name=".StartActivity">

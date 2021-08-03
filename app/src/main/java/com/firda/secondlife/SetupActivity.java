@@ -7,7 +7,6 @@ import android.util.Log;
 public class SetupActivity extends AppCompatActivity {
 
     public static final String KEYJOBS = "Jobs";
-    public static final String TAG = "SetupActivity";
     public static int jobsSize;
 
     @Override
@@ -16,7 +15,6 @@ public class SetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup);
 
         jobsSize = getIntent().getExtras().getInt(KEYJOBS);
-        Log.d(TAG, "onCreate: "+String.valueOf(jobsSize));
 
         JobFragment jobFragment = new JobFragment();
         this.getSupportFragmentManager()
