@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -62,17 +63,17 @@ public class CaptionedAdapter extends
         TextView titleTxtView = cardView.findViewById(R.id.titleTxtView);
         titleTxtView.setText(jobs.get(position).getTitle());
         TextView lengthTxtView = cardView.findViewById(R.id.lengthTxtView);
-        /*NumberFormat f = new DecimalFormat("00");
-        long hour = (long) (jobs.get(position).getLength());
-        long min = (long) ((jobs.get(position).getLength()-hour)*60);
-        long sec = 0;*/
+        ProgressBar progressBar = cardView.findViewById(R.id.progress_bar);
+        progressBar.setProgress((int) jobs.get(position).progr);
+        //int maxProgres = (int) jobs.get(position).getLength();
+        progressBar.setMax((int) jobs.get(position).maxProgress);
+
         long milliSeconds = (long) (jobs.get(position).getLength());
         NumberFormat f = new DecimalFormat("00");
         long hour = (milliSeconds / 3600000) % 24;
         long min = (milliSeconds / 60000) % 60;
         long sec = (milliSeconds / 1000) % 60;
         lengthTxtView.setText(f.format(hour) + ":" + f.format(min) + ":" + f.format(sec));
-       // lengthTxtView.setText(String.valueOf(jobs.get(position).getLength()));
 
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -7,12 +7,15 @@ import java.util.List;
 public class Job {
     String title;
     long length;
+    long progr = 0;
+    long maxProgress;
 
     public static List<Job> jobs = new ArrayList<>();
 
     Job(String title, long length) {
         this.title = title;
         this.length = length;
+        this.maxProgress = length;
     }
 
     public String getTitle() {

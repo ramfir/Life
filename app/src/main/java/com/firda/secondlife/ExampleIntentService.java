@@ -64,9 +64,12 @@ public class ExampleIntentService extends IntentService {
         startForeground(1, notification);
 
         for (long i = length; i >= 0 ; i-=1000) {
-            if (!serviceRunning) break;
 
-            Job.jobs.get(position).setLength(i);
+
+            Job.jobs.get(position).setLength(i); // (*)
+            if (!serviceRunning) break; // moved this line of code from line before (*)
+                                        // because progressBar progessing too fast
+            Job.jobs.get(position).progr+=1000;
             if (i == 0)
                 Job.jobs.get(position).setTitle(Job.jobs.get(position).getTitle()+" | finished");
             Intent broadcastIntent = new Intent();
@@ -80,8 +83,15 @@ public class ExampleIntentService extends IntentService {
 
             SystemClock.sleep(1000);
         }
+        /*without following method onDestoy() won't be called if Activity is destroyed
 
-        stopSelf(); // without this method onDestoy() won't be called if Activity is destroyed
+        from https://developer.android.com/reference/android/app/Service?hl=pl#onStartCommand(android.content.Intent,%20int,%20int)
+        "If you implement this, it is your responsibility to stop the service when its work is
+        complete by calling stopSelf() or stopService()."*/
+        //stopSelf();
+        Log.d(TAG, "onHandleIntent: " + intent.hasExtra("test"));
+        if (serviceRunning)
+            startNewJob();
     }
 
     private Notification getNotification(String title, long content, PendingIntent pendingIntent) {
@@ -101,28 +111,39 @@ public class ExampleIntentService extends IntentService {
                 .build();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mWakeLock.release();
+    private void startNewJob() {
+        doVibrate();
+        if (position < Job.jobs.size()-1) {
+            position++;
+            Intent serviceIntent = new Intent(this, ExampleIntentService.class);
+            serviceIntent.putExtra(TAG_POSITION, position);
+            startService(serviceIntent);
+        } else {
+            stopSelf();
+        }
+    }
 
+    private void doVibrate() {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            // Vibrate for 500 milliseconds
+        // Vibrate for 500 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
             //deprecated in API 26
             v.vibrate(500);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mWakeLock.release();
+
+        doVibrate();
 
         serviceRunning = false;
 
-        if (position < Job.jobs.size()-1) {
-            position++;
-            Intent serviceIntent = new Intent(this, ExampleIntentService.class);
-            serviceIntent.putExtra(TAG_POSITION, position);
-            startService(serviceIntent);
-        }
+
         // mNotificationManager.cancelAll();
         //startForeground(1, null);
 
