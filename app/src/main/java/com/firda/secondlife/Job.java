@@ -8,7 +8,7 @@ public class Job {
     String title;
     long length;
     long progr = 0;
-    long maxProgress;
+    long maxProgress; // this field exists to prevent progressBar's max value to change
 
     public static List<Job> jobs = new ArrayList<>();
 

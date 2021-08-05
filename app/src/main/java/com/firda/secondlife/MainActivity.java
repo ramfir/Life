@@ -54,14 +54,21 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(broadcastReceiver, intentFilter);
+
+        /*IntentFilter intentFilterr = new IntentFilter();
+        intentFilterr.addAction("stop");
+        BroadcastReceiver broadcastReceiverr = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent serviceIntent = new Intent(MainActivity.this, ExampleIntentService.class);
+                stopService(serviceIntent);
+            }
+        };
+        registerReceiver(broadcastReceiverr, intentFilterr);*/
     }
 
-    private void updateProgressBar() {
-
-    }
     public void stopService(View view) {
         Intent serviceIntent = new Intent(this, ExampleIntentService.class);
-        serviceIntent.putExtra("test", 97);
         stopService(serviceIntent);
     }
 }

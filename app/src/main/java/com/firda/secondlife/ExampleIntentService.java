@@ -4,19 +4,15 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import java.util.Locale;
@@ -32,7 +28,7 @@ public class ExampleIntentService extends IntentService {
     private PowerManager.WakeLock mWakeLock;
     private boolean serviceRunning = true;
     private NotificationManager mNotificationManager;
-    public static final String TAG_ACTION = "MY_ACTION";
+    public static final String TAG_ACTION = "MY_ACTIONn"; // added extra n bacause of productionsecondlife app
     public static final String TAG_POSITION = "POSITION";
     int position;
 
@@ -60,17 +56,26 @@ public class ExampleIntentService extends IntentService {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
-        Notification notification = getNotification(title, length, pendingIntent);
+
+        Intent actionStopBroRec = new Intent(this, StopBroadcastReceiver.class);
+        //actionStopBroRec.setAction("stop");
+        PendingIntent penActionStopBroRec = PendingIntent.getBroadcast(this, 0,
+                actionStopBroRec, 0);
+        //sendBroadcast(actionStopBroRec);
+
+        Intent actionPauseBroRec = new Intent(this, PauseBroadcastReceiver.class);
+        PendingIntent penActionPauseBroRec = PendingIntent.getBroadcast(this, 0,
+                actionPauseBroRec, 0);
+
+        Notification notification = getNotification(title, length, pendingIntent, penActionStopBroRec, penActionPauseBroRec);
         startForeground(1, notification);
 
         for (long i = length; i >= 0 ; i-=1000) {
-
-
             Job.jobs.get(position).setLength(i); // (*)
             if (!serviceRunning) break; // moved this line of code from line before (*)
                                         // because progressBar progessing too fast
             Job.jobs.get(position).progr+=1000;
-            if (i == 0)
+            if (i == 0 && !title.contains("finished"))
                 Job.jobs.get(position).setTitle(Job.jobs.get(position).getTitle()+" | finished");
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction(TAG_ACTION);
@@ -78,23 +83,25 @@ public class ExampleIntentService extends IntentService {
             broadcastIntent.putExtra(TAG_POSITION, position);
             sendBroadcast(broadcastIntent);
 
-            notification = getNotification(title, i, pendingIntent);
+            notification = getNotification(title, i, pendingIntent, penActionStopBroRec, penActionPauseBroRec);
             mNotificationManager.notify(1, notification);
 
             SystemClock.sleep(1000);
         }
+
         /*without following method onDestoy() won't be called if Activity is destroyed
 
         from https://developer.android.com/reference/android/app/Service?hl=pl#onStartCommand(android.content.Intent,%20int,%20int)
-        "If you implement this, it is your responsibility to stop the service when its work is
+        "If you implement this (onStartCommand()), it is your responsibility to stop the service when its work is
         complete by calling stopSelf() or stopService()."*/
         //stopSelf();
-        Log.d(TAG, "onHandleIntent: " + intent.hasExtra("test"));
+
         if (serviceRunning)
             startNewJob();
     }
 
-    private Notification getNotification(String title, long content, PendingIntent pendingIntent) {
+    private Notification getNotification(String title, long content, PendingIntent pendingIntent,
+                                         PendingIntent penActionStopBroRec, PendingIntent penActionPauseBroRec) {
         int hour = (int) ((content / 3600000) % 24);
         int min = (int) ((content / 60000) % 60);
         int sec = (int) (content / 1000) % 60;
@@ -108,6 +115,13 @@ public class ExampleIntentService extends IntentService {
                 .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
                 .setVibrate(new long[] { 0, 1000, 1000, 0, 1000 })
                 .setDefaults(Notification.DEFAULT_SOUND)
+
+                .setProgress((int)Job.jobs.get(position).maxProgress, (int)Job.jobs.get(position).progr, false)
+
+                .setPriority(Notification.PRIORITY_HIGH)
+
+                .addAction(R.drawable.ic_stop_black_24dp, "Stop", penActionStopBroRec)
+                .addAction(R.drawable.ic_pause_black_24dp, "Pause", penActionPauseBroRec)
                 .build();
     }
 
@@ -119,7 +133,7 @@ public class ExampleIntentService extends IntentService {
             serviceIntent.putExtra(TAG_POSITION, position);
             startService(serviceIntent);
         } else {
-            stopSelf();
+            //stopSelf();
         }
     }
 
@@ -143,8 +157,7 @@ public class ExampleIntentService extends IntentService {
 
         serviceRunning = false;
 
-
-        // mNotificationManager.cancelAll();
+        Log.d(TAG, "onDestroy: service");
         //startForeground(1, null);
 
         /*MainActivity.works--;

@@ -28,6 +28,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".SetupActivity"></activity>
+        <receiver android:name=".StopBroadcastReceiver"/>
+        <receiver android:name=".PlayBroadcastReceiver"/>
+        <receiver android:name=".PauseBroadcastReceiver"/>
     </application>
 
 </manifest>
