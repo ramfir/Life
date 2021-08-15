@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+
+
 public class SetupActivity extends AppCompatActivity {
 
     public static final String KEYJOBS = "Jobs";
@@ -17,6 +19,11 @@ public class SetupActivity extends AppCompatActivity {
         jobsSize = getIntent().getExtras().getInt(KEYJOBS);
 
         JobFragment jobFragment = new JobFragment();
+
+        /*Bundle bundle = new Bundle();
+        bundle.putInt(KEY_BUNDLE, jobsSize);
+        jobFragment.setArguments(bundle);*/
+
         this.getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.frameLayout, jobFragment)

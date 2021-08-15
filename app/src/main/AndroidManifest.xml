@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.firda.secondlife">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -14,23 +15,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
 
-        </activity>
-
-        <service android:name=".ExampleIntentService" />
 
         <activity android:name=".StartActivity">
+
+        </activity>
+        <activity android:name=".SetupActivity"/>
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SetupActivity"></activity>
-        <receiver android:name=".StopBroadcastReceiver"/>
-        <receiver android:name=".PlayBroadcastReceiver"/>
-        <receiver android:name=".PauseBroadcastReceiver"/>
+        <service android:name=".ExampleIntentService" />
+        <service android:name=".ExampleService"/>
+        <receiver android:name=".StopBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="MY_ACTIONn"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".PlayBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="PLAY_ACTION"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".PauseBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="PAUSE_ACTION"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

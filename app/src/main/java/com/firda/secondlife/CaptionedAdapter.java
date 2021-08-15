@@ -1,20 +1,18 @@
 package com.firda.secondlife;
 
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.Scanner;
 
 public class CaptionedAdapter extends
         RecyclerView.Adapter<CaptionedAdapter.ViewHolder>{
@@ -25,6 +23,7 @@ public class CaptionedAdapter extends
     }
 
     private List<Job> jobs;
+    int selected_position = RecyclerView.NO_POSITION;
 
     public CaptionedAdapter(List<Job> jobs) {
         this.jobs = jobs;
@@ -58,28 +57,39 @@ public class CaptionedAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position){
-        CardView cardView = holder.cardView;
-        TextView titleTxtView = cardView.findViewById(R.id.titleTxtView);
-        titleTxtView.setText(jobs.get(position).getTitle());
-        TextView lengthTxtView = cardView.findViewById(R.id.lengthTxtView);
-        ProgressBar progressBar = cardView.findViewById(R.id.progress_bar);
-        progressBar.setProgress((int) jobs.get(position).progr);
-        //int maxProgres = (int) jobs.get(position).getLength();
-        progressBar.setMax((int) jobs.get(position).maxProgress);
+    public void onBindViewHolder(final ViewHolder holder, final int position){
+        String title = jobs.get(position).getTitle();
+        long progr = jobs.get(position).getProgr();
+        long maxProgress = jobs.get(position).getMaxProgress();
+        long length = jobs.get(position).getLength();
+        final CardView cardView = holder.cardView;
 
-        long milliSeconds = (long) (jobs.get(position).getLength());
+        TextView titleTxtView = cardView.findViewById(R.id.titleTxtView);
+        titleTxtView.setText(title);
+
+        ProgressBar progressBar = cardView.findViewById(R.id.progress_bar);
+        progressBar.setMax((int) maxProgress);
+        progressBar.setProgress(123); // workaround bug shorturl.at/lA038
+        progressBar.setProgress((int) progr);
+
+        TextView lengthTxtView = cardView.findViewById(R.id.lengthTxtView);
         NumberFormat f = new DecimalFormat("00");
-        long hour = (milliSeconds / 3600000) % 24;
-        long min = (milliSeconds / 60000) % 60;
-        long sec = (milliSeconds / 1000) % 60;
+        long hour = (length / 3600000) % 24;
+        long min = (length / 60000) % 60;
+        long sec = (length / 1000) % 60;
         lengthTxtView.setText(f.format(hour) + ":" + f.format(min) + ":" + f.format(sec));
+
+        cardView.setBackgroundColor(selected_position == position ? Color.parseColor("#FF008577") : Color.WHITE);
+        //cardView.setEnabled(selected_position != position);
 
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
                     listener.onClick(position);
+                    notifyItemChanged(selected_position);
+                    selected_position = holder.getAdapterPosition();
+                    notifyItemChanged(selected_position);
                 }
             }
         });

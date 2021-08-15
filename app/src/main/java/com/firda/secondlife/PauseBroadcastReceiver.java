@@ -8,22 +8,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.google.gson.Gson;
+
 import java.util.Locale;
 
+import static com.firda.secondlife.ExampleIntentService.TAG_JOB;
 import static com.firda.secondlife.ExampleIntentService.TAG_POSITION;
 
 public class PauseBroadcastReceiver extends BroadcastReceiver {
+
+    public static final String PLAY_ACTION = "PLAY_ACTION";
+    Gson gson = new Gson();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent serviceIntent = new Intent(context, ExampleIntentService.class);
         context.stopService(serviceIntent);
 
         int position = intent.getIntExtra(TAG_POSITION, 0);
-        String title = Job.jobs.get(position).getTitle();
-        long content = Job.jobs.get(position).getLength();
-        int hour = (int) ((content / 3600000) % 24);
-        int min = (int) ((content / 60000) % 60);
-        int sec = (int) (content / 1000) % 60;
+        Job job = gson.fromJson(intent.getStringExtra(TAG_JOB), Job.class);
+
+        String title = job.getTitle();//Job.jobs.get(position).getTitle();
+        long length = job.getLength();// Job.jobs.get(position).getLength();
+        int hour = (int) ((length / 3600000) % 24);
+        int min = (int) ((length / 60000) % 60);
+        int sec = (int) (length / 1000) % 60;
         StringBuilder timeLeftFormatted = new StringBuilder(String.format(Locale.getDefault(),
                 "%02d:%02d:%02d", hour, min, sec));
 
@@ -35,9 +44,13 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
         PendingIntent penActionStopBroRec = PendingIntent.getBroadcast(context, 0,
                 actionStopBroRec, 0);
 
-        Intent actionPlayBroRec = new Intent(context, PlayBroadcastReceiver.class);
+        Intent actionPlayBroRec = new Intent(/*context, PlayBroadcastReceiver.class*/);
+        actionPlayBroRec.putExtra(TAG_POSITION, position);
+        actionPlayBroRec.putExtra(TAG_JOB, gson.toJson(job));
+
+        actionPlayBroRec.setAction(PLAY_ACTION);
         PendingIntent penActionPlayBroRec = PendingIntent.getBroadcast(context, 0,
-                actionPlayBroRec, 0);
+                actionPlayBroRec, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(context, App.CHANNEL_ID)
                 .setContentTitle(title)
@@ -48,9 +61,9 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
                 .setVibrate(new long[] { 0, 1000, 1000, 0, 1000 })
                 .setDefaults(Notification.DEFAULT_SOUND)
 
-                .setProgress((int)Job.jobs.get(position).maxProgress, (int)Job.jobs.get(position).progr, false)
+                .setProgress((int)job.getMaxProgress()/*Job.jobs.get(position).getMaxProgress()*/, (int)job.getProgr()/*Job.jobs.get(position).getProgr()*/, false)
 
-                .setPriority(Notification.PRIORITY_HIGH)
+                .setPriority(Notification.PRIORITY_LOW)
 
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", penActionStopBroRec)
                 .addAction(R.drawable.ic_play_arrow_black_24dp, "Play", penActionPlayBroRec)

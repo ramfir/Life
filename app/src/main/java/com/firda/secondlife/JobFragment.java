@@ -30,10 +30,13 @@ public class JobFragment extends Fragment implements View.OnClickListener {
     EditText length;
     Button nextButton;
 
+    //int jobSize;
+
+    //public static final String KEY_BUNDLE = "KEY_JOB_SIZE";
+
     public JobFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,8 +58,10 @@ public class JobFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initialize(View view) {
+        //jobSize = getArguments().getInt(KEY_BUNDLE);
+
         mTextView = view.findViewById(R.id.textView);
-        mTextView.setText("Enter the title and length of Job №" + String.valueOf(Job.jobs.size()+1));
+        mTextView.setText("Enter the title and length of Job №" + SetupActivity.jobsSize);
         title = view.findViewById(R.id.titleEditText);
         length = view.findViewById(R.id.lengthEditText);
         nextButton = view.findViewById(R.id.nextButton);
@@ -76,7 +81,8 @@ public class JobFragment extends Fragment implements View.OnClickListener {
                 return;
             }
             Job.jobs.add(new Job(title.getText().toString(), date.getHours()*3600000+date.getMinutes()*60000+date.getSeconds()*1000));
-            if (Job.jobs.size() == SetupActivity.jobsSize) {
+            SetupActivity.jobsSize--;
+            if (SetupActivity.jobsSize == 0) {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
             } else {

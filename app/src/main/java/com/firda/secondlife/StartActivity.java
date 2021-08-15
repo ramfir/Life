@@ -17,11 +17,19 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         /*Job.jobs.add(new Job("First job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
+        Job.jobs.add(new Job("Second job", 5000));
         Job.jobs.add(new Job("Second job", 5000));*/
-        if (Job.jobs.size() > 0) {
+        /*if (Job.jobs.size() > 0) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-        }
+        }*/
 
         jobsEdText = findViewById(R.id.jobsEditText);
 
