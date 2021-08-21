@@ -1,4 +1,4 @@
-package com.firda.secondlife;
+package com.firda.Life;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,7 +34,7 @@ public class MyDialog extends AppCompatDialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         String inputTitle = title.getText().toString();
                         String inputLength = length.getText().toString();
-                        mListener.add(inputTitle, inputLength);
+                        mListener.addJob(inputTitle, inputLength);
                     }
                 });
         title = view.findViewById(R.id.dialogTitleEditText);
@@ -50,6 +50,6 @@ public class MyDialog extends AppCompatDialogFragment {
     }
 
     public interface MyDialogListener {
-        void add(String title, String length);
+        void addJob(String title, String length);
     }
 }

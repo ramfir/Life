@@ -1,4 +1,4 @@
-package com.firda.secondlife;
+package com.firda.Life;
 
 import org.junit.Test;
 

@@ -1,16 +1,10 @@
-package com.firda.secondlife;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package com.firda.Life;
 
 public class Job {
     private String title;
-    private long length;
+    private long length; // in seconds
     private long progr;
     private long maxProgress; // this field exists to prevent progressBar's max value from changing
-
-    public static List<Job> jobs = new ArrayList<>();
 
     Job(String title, long length) {
         this.title = title;
@@ -30,4 +24,9 @@ public class Job {
     public void setProgr(long progr) { this.progr = progr; }
     public long getProgr() { return progr; }
     public long getMaxProgress() { return maxProgress; }
+
+    @Override
+    public String toString() {
+        return title + " " + String.valueOf(length);
+    }
 }

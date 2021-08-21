@@ -1,4 +1,4 @@
-package com.firda.secondlife;
+package com.firda.Life;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -12,8 +12,8 @@ import com.google.gson.Gson;
 
 import java.util.Locale;
 
-import static com.firda.secondlife.ExampleIntentService.TAG_JOB;
-import static com.firda.secondlife.ExampleIntentService.TAG_POSITION;
+import static com.firda.Life.ExampleIntentService.TAG_JOB;
+import static com.firda.Life.ExampleIntentService.TAG_POSITION;
 
 public class PauseBroadcastReceiver extends BroadcastReceiver {
 
@@ -30,9 +30,9 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
 
         String title = job.getTitle();//Job.jobs.get(position).getTitle();
         long length = job.getLength();// Job.jobs.get(position).getLength();
-        int hour = (int) ((length / 3600000) % 24);
-        int min = (int) ((length / 60000) % 60);
-        int sec = (int) (length / 1000) % 60;
+        int hour = (int) ((length / 3600) % 24);
+        int min = (int) ((length / 60) % 60);
+        int sec = (int) length % 60;
         StringBuilder timeLeftFormatted = new StringBuilder(String.format(Locale.getDefault(),
                 "%02d:%02d:%02d", hour, min, sec));
 
@@ -60,11 +60,8 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
                 .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
                 .setVibrate(new long[] { 0, 1000, 1000, 0, 1000 })
                 .setDefaults(Notification.DEFAULT_SOUND)
-
                 .setProgress((int)job.getMaxProgress()/*Job.jobs.get(position).getMaxProgress()*/, (int)job.getProgr()/*Job.jobs.get(position).getProgr()*/, false)
-
                 .setPriority(Notification.PRIORITY_LOW)
-
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", penActionStopBroRec)
                 .addAction(R.drawable.ic_play_arrow_black_24dp, "Play", penActionPlayBroRec)
                 .build();

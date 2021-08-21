@@ -1,4 +1,4 @@
-package com.firda.secondlife;
+package com.firda.Life;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

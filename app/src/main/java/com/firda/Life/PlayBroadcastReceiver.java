@@ -1,4 +1,4 @@
-package com.firda.secondlife;
+package com.firda.Life;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,8 +6,8 @@ import android.content.Intent;
 
 import com.google.gson.Gson;
 
-import static com.firda.secondlife.ExampleIntentService.TAG_JOB;
-import static com.firda.secondlife.ExampleIntentService.TAG_POSITION;
+import static com.firda.Life.ExampleIntentService.TAG_JOB;
+import static com.firda.Life.ExampleIntentService.TAG_POSITION;
 
 public class PlayBroadcastReceiver extends BroadcastReceiver {
 
