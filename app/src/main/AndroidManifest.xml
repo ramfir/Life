@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.firda.Life.ExampleIntentService" />
+        <service android:name="com.firda.Life.TimerService" />
 
         <receiver
             android:name="com.firda.Life.StopBroadcastReceiver"

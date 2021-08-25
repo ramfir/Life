@@ -25,7 +25,7 @@ import java.util.Locale;
 
 // I'm using IntentService since its code runs on separate thread
 
-public class ExampleIntentService extends IntentService {
+public class TimerService extends IntentService {
 
     public static final String TAG_ACTION = "MY_ACTION";
     public static final String TAG_POSITION = "POSITION";
@@ -37,7 +37,7 @@ public class ExampleIntentService extends IntentService {
     private NotificationManager mNotificationManager;
 
     private int position = -1;
-    private Job job;
+    private Task task;
     Gson gson = new Gson();
 
     SharedPreferences mSharedPreferences;
@@ -45,14 +45,14 @@ public class ExampleIntentService extends IntentService {
 
     private IBinder mIBinder = new MyBinder();
 
-    public ExampleIntentService() {
-        super("ExampleIntentService");
+    public TimerService() {
+        super("TimerService");
         setIntentRedelivery(true);
     }
 
     class MyBinder extends Binder {
-        public ExampleIntentService getService() {
-            return ExampleIntentService.this;
+        public TimerService getService() {
+            return TimerService.this;
         }
     }
 
@@ -77,7 +77,7 @@ public class ExampleIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         position = intent.getIntExtra(TAG_POSITION, -1);
         String jobJson = intent.getStringExtra(TAG_JOB);
-        job = gson.fromJson(jobJson, Job.class);
+        task = gson.fromJson(jobJson, Task.class);
 
         if (position == -1)
             return;
@@ -98,7 +98,7 @@ public class ExampleIntentService extends IntentService {
         Intent actionPauseBroRec = new Intent();
         actionPauseBroRec.setAction(PAUSE_ACTION);
         actionPauseBroRec.putExtra(TAG_POSITION, position);
-        actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(job));
+        actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
         PendingIntent penActionPauseBroRec = PendingIntent.getBroadcast(this,
                                                                         0,
                                                                         actionPauseBroRec,
@@ -107,22 +107,22 @@ public class ExampleIntentService extends IntentService {
                                                     penActionStopBroRec,
                                                     penActionPauseBroRec);
         startForeground(1, notification);
-        while (job.getLength() >= 0) {
-            actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(job));
+        while (task.getDuration() >= 0) {
+            actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
             penActionPauseBroRec = PendingIntent.getBroadcast(this,
                                                               0,
                                                               actionPauseBroRec,
                                                               PendingIntent.FLAG_UPDATE_CURRENT);
             if (!serviceRunning)
                 break;
-            job.setProgr(job.getProgr() + 1);
+            task.setProgr(task.getProgr() + 1);
             notification = getNotification(pendingIntent,
                                            penActionStopBroRec,
                                            penActionPauseBroRec);
             mNotificationManager.notify(1, notification);
-            if (job.getLength() == 0 && !job.getTitle().contains("finished")) {
-                mEditor.remove(job.getTitle()).apply();
-                job.setTitle(job.getTitle() + " | finished");
+            if (task.getDuration() == 0 && !task.getTitle().contains("finished")) {
+                mEditor.remove(task.getTitle()).apply();
+                task.setTitle(task.getTitle() + " | finished");
                 SystemClock.sleep(1000);
                 serviceRunning = false;
                 // without following method onDestoy() won't be called if Activity is destroyed
@@ -130,7 +130,7 @@ public class ExampleIntentService extends IntentService {
                 mNotificationManager.notify(2, getNotification(pendingIntent, null, null));
                 break;
             }
-            job.setLength(job.getLength() - 1);
+            task.setDuration(task.getDuration() - 1);
             SystemClock.sleep(1000);
         }
     }
@@ -138,8 +138,8 @@ public class ExampleIntentService extends IntentService {
     private Notification getNotification(PendingIntent pendingIntent,
                                          PendingIntent penActionStopBroRec,
                                          PendingIntent penActionPauseBroRec) {
-        long length = job.getLength();
-        String title = job.getTitle();
+        long length = task.getDuration();
+        String title = task.getTitle();
         int hour = (int) ((length / 3600) % 24);
         int min = (int) ((length / 60) % 60);
         int sec = (int) length % 60;
@@ -151,12 +151,12 @@ public class ExampleIntentService extends IntentService {
         return new NotificationCompat.Builder(this, App.CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(timeLeftFormatted)
-                .setSmallIcon(R.drawable.ic_android)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
                 .setVibrate(new long[]{0, 1000, 1000, 0, 1000})
                 .setDefaults(Notification.DEFAULT_SOUND)
-                .setProgress((int) job.getMaxProgress(), (int) job.getProgr(), false)
+                .setProgress((int) task.getMaxProgress(), (int) task.getProgr(), false)
                 .setPriority(Notification.PRIORITY_LOW)
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", penActionStopBroRec)
                 .addAction(R.drawable.ic_pause_black_24dp, "Pause", penActionPauseBroRec)
@@ -167,8 +167,8 @@ public class ExampleIntentService extends IntentService {
         return position;
     }
 
-    public Job getJob() {
-        return job;
+    public Task getTask() {
+        return task;
     }
 
     public boolean isServiceRunning() {
@@ -187,8 +187,8 @@ public class ExampleIntentService extends IntentService {
     }
 
     private void saveJob() {
-        if (job != null) {
-            mEditor.putString(job.getTitle(), gson.toJson(job));
+        if (task != null) {
+            mEditor.putString(task.getTitle(), gson.toJson(task));
             mEditor.apply();
         }
     }

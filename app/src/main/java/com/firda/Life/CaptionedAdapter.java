@@ -22,22 +22,22 @@ public class CaptionedAdapter extends
         void onClick(int position);
     }
 
-    private List<Job> jobs;
-    int selected_position = RecyclerView.NO_POSITION;
+    private List<Task> tasks;
+    private int selected_position = RecyclerView.NO_POSITION;
 
-    public CaptionedAdapter(List<Job> jobs) {
-        this.jobs = jobs;
+    public CaptionedAdapter(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     @Override
     public int getItemCount() {
-        return jobs.size();
+        return tasks.size();
     }
 
     public void setListener(Listener listener) {
         this.listener = listener;
     }
-
+    public void setSelected_position(int selected_position) { this.selected_position = selected_position;}
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
@@ -58,10 +58,10 @@ public class CaptionedAdapter extends
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        String title = jobs.get(position).getTitle();
-        long progr = jobs.get(position).getProgr();
-        long maxProgress = jobs.get(position).getMaxProgress();
-        long length = jobs.get(position).getLength();
+        String title = tasks.get(position).getTitle();
+        long progr = tasks.get(position).getProgr();
+        long maxProgress = tasks.get(position).getMaxProgress();
+        long length = tasks.get(position).getDuration();
         final CardView cardView = holder.cardView;
 
         TextView titleTxtView = cardView.findViewById(R.id.titleTxtView);

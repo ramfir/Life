@@ -30,10 +30,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.firda.Life.ExampleIntentService.PAUSE_ACTION;
-import static com.firda.Life.ExampleIntentService.TAG_ACTION;
-import static com.firda.Life.ExampleIntentService.TAG_JOB;
-import static com.firda.Life.ExampleIntentService.TAG_POSITION;
+import static com.firda.Life.TimerService.PAUSE_ACTION;
+import static com.firda.Life.TimerService.TAG_ACTION;
+import static com.firda.Life.TimerService.TAG_JOB;
+import static com.firda.Life.TimerService.TAG_POSITION;
 import static com.firda.Life.PauseBroadcastReceiver.PLAY_ACTION;
 
 public class MainActivity extends AppCompatActivity implements MyDialog.MyDialogListener {
@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
     SharedPreferences mSharedPreferences;
     SharedPreferences.Editor mEditor;
     Gson gson = new Gson();
-    List<Job> jobs = new ArrayList<>();
-    int position;
+    List<Task> tasks = new ArrayList<>();
+    int position = -1;
     String title;
     private CaptionedAdapter adapter;
     ItemTouchHelper.SimpleCallback itemTouchHelper = new ItemTouchHelper.SimpleCallback(0,
@@ -59,14 +59,16 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-            mEditor.remove(jobs.get(viewHolder.getAdapterPosition()).getTitle());
+            if (position == viewHolder.getAdapterPosition())
+                stopService();
+            mEditor.remove(tasks.get(viewHolder.getAdapterPosition()).getTitle());
             mEditor.apply();
-            jobs.remove(viewHolder.getAdapterPosition());
+            tasks.remove(viewHolder.getAdapterPosition());
             adapter.notifyDataSetChanged();
         }
     };
     private RecyclerView myRecyclerView;
-    private ExampleIntentService myService;
+    private TimerService myService;
     private ServiceConnection mServiceConnection;
     private boolean isBound;
 
@@ -78,14 +80,15 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mSharedPreferences.edit();
         initJobs();
+        Log.d(TAG, "onCreate: " + tasks);
         setupRecyclerView();
         runnable = new Runnable() {
             @Override
             public void run() {
                 if (myService != null && myService.isServiceRunning()) {
                     position = myService.getPosition();
-                    jobs.set(position, myService.getJob());
-                    Log.d(TAG, "run: " + myService.getJob());
+                    tasks.set(position, myService.getTask());
+                    //Log.d(TAG, "run: " + myService.getTask());
                     adapter.notifyDataSetChanged();
                     handler.postDelayed(this, 1000);
                 } else {
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
 
     private void setupRecyclerView() {
         myRecyclerView = findViewById(R.id.my_recycler);
-        adapter = new CaptionedAdapter(jobs);
+        adapter = new CaptionedAdapter(tasks);
         myRecyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         myRecyclerView.setLayoutManager(layoutManager);
@@ -111,13 +114,13 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
         adapter.setListener(new CaptionedAdapter.Listener() {
             @Override
             public void onClick(int position) {
-                if (jobs.get(position).getLength() == 0)
+                if (tasks.get(position).getDuration() == 0)
                     return;
                 stopService();
                 Intent serviceIntent = new Intent(getApplicationContext(),
-                                                  ExampleIntentService.class);
+                                                  TimerService.class);
                 serviceIntent.putExtra(TAG_POSITION, position);
-                serviceIntent.putExtra(TAG_JOB, gson.toJson(jobs.get(position)));
+                serviceIntent.putExtra(TAG_JOB, gson.toJson(tasks.get(position)));
                 startService(serviceIntent);
                 bindService();
             }
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
     private void initJobs() {
         Map<String, ?> keys = mSharedPreferences.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet()) {
-            jobs.add(gson.fromJson(entry.getValue().toString(), Job.class));
+            tasks.add(gson.fromJson(entry.getValue().toString(), Task.class));
         }
     }
 
@@ -171,8 +174,9 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
             mServiceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
-                    ExampleIntentService.MyBinder myServiceBinder = (ExampleIntentService.MyBinder) service;
+                    TimerService.MyBinder myServiceBinder = (TimerService.MyBinder) service;
                     myService = myServiceBinder.getService();
+                    adapter.setSelected_position(myService.getPosition());
                     handler.postDelayed(runnable, 500);
                 }
 
@@ -182,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
                 }
             };
         }
-        Intent intent = new Intent(this, ExampleIntentService.class);
+        Intent intent = new Intent(this, TimerService.class);
         if (bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE))
             isBound = true;
     }
@@ -207,14 +211,14 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
     }
 
     private void saveJobs() {
-        for (int i = 0; i < jobs.size(); i++) {
-            mEditor.putString(jobs.get(i).getTitle(), gson.toJson(jobs.get(i)));
+        for (int i = 0; i < tasks.size(); i++) {
+            mEditor.putString(tasks.get(i).getTitle(), gson.toJson(tasks.get(i)));
         }
         mEditor.apply();
     }
 
     private void stopService() {
-        Intent serviceIntent = new Intent(this, ExampleIntentService.class);
+        Intent serviceIntent = new Intent(this, TimerService.class);
         stopService(serviceIntent);
         if (isBound) {
             isBound = false;
@@ -237,14 +241,14 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
             Toast.makeText(this, "Wrong time format", Toast.LENGTH_LONG).show();
             return;
         }
-        Job newJob = new Job(title,
-                             date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds());
-        String json = gson.toJson(newJob);
+        Task newTask = new Task(title,
+                                date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds());
+        String json = gson.toJson(newTask);
 
         mEditor.putString(title, json);
         mEditor.apply();
 
-        jobs.add(newJob);
+        tasks.add(newTask);
         adapter.notifyDataSetChanged();
     }
 }

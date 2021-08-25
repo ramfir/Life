@@ -6,8 +6,8 @@ import android.content.Intent;
 
 import com.google.gson.Gson;
 
-import static com.firda.Life.ExampleIntentService.TAG_JOB;
-import static com.firda.Life.ExampleIntentService.TAG_POSITION;
+import static com.firda.Life.TimerService.TAG_JOB;
+import static com.firda.Life.TimerService.TAG_POSITION;
 
 public class PlayBroadcastReceiver extends BroadcastReceiver {
 
@@ -18,7 +18,7 @@ public class PlayBroadcastReceiver extends BroadcastReceiver {
         int position = intent.getIntExtra(TAG_POSITION, 0);
         String jsonJob = intent.getStringExtra(TAG_JOB);
 
-        Intent serviceIntent = new Intent(context, ExampleIntentService.class);
+        Intent serviceIntent = new Intent(context, TimerService.class);
         serviceIntent.putExtra(TAG_POSITION, position);
         serviceIntent.putExtra(TAG_JOB, jsonJob);
         context.startService(serviceIntent);

@@ -1,25 +1,25 @@
 package com.firda.Life;
 
-public class Job {
+public class Task {
     private String title;
-    private long length; // in seconds
+    private long duration; // in seconds
     private long progr;
     private long maxProgress; // this field exists to prevent progressBar's max value from changing
 
-    Job(String title, long length) {
+    Task(String title, long duration) {
         this.title = title;
-        this.length = length;
-        this.maxProgress = length;
+        this.duration = duration;
+        this.maxProgress = duration;
         this.progr = 0;
     }
 
     public String getTitle() {
         return title;
     }
-    public long getLength() {
-        return length;
+    public long getDuration() {
+        return duration;
     }
-    public void setLength(long length) { this.length = length; }
+    public void setDuration(long duration) { this.duration = duration; }
     public void setTitle(String title) { this.title = title; }
     public void setProgr(long progr) { this.progr = progr; }
     public long getProgr() { return progr; }
@@ -27,6 +27,6 @@ public class Job {
 
     @Override
     public String toString() {
-        return title + " " + String.valueOf(length);
+        return title + " " + String.valueOf(duration);
     }
 }
