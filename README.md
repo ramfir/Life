@@ -6,7 +6,11 @@ This app helps user to manage time more efficiently. User adds tasks with durati
 
 # Logic behind the app
 
-MainActivity is a launcher activity with RecyclerView in it. RecyclerView contains tasks. When some task is clicked MainActivity starts a TimerService via bindService() and startService() methods. So TimerService is both bound and started service, it is responsible for counting time which left to finish clicked task. When TimerService is running MainActivity gets updated information from it and updates RecyclerView's adapter every second. When MainActivity becomes invisible it unbinds from TimerService and stops updating RecyclerView's adapter but TimerService doesn't stop working and displays task's information in notification. If user opens app again MainActivity will update RecyclerView's adapter every second in case of TimerService is running, otherwise it just will show current state of RecyclerView. 
+MainActivity is a launcher activity with RecyclerView in it. RecyclerView contains tasks. 
+<br>When some task is clicked MainActivity starts a TimerService via bindService() and startService() methods. So TimerService is both bound and started service, it is responsible for counting time which left to finish clicked task. 
+<br>When TimerService is running MainActivity gets updated information from it and updates RecyclerView's adapter every second. 
+<br>When MainActivity becomes invisible it unbinds from TimerService and stops updating RecyclerView's adapter but TimerService doesn't stop working and displays task's information in notification. 
+<br>If user opens app again MainActivity will update RecyclerView's adapter every second in case of TimerService is running, otherwise it just will show current state of RecyclerView. 
 
 
 
