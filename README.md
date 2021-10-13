@@ -2,7 +2,7 @@
 This app helps user to manage time more efficiently. User adds tasks with duration, clicks to one which he is going to do and app starts to count how much time left to finish task. While user does his task he can close the app, block a screen and he will be notified when ever task time will be over. After that user can chose another task or take a rest.
 # Preview
 
-![Edited_20211013_212209 1](https://user-images.githubusercontent.com/52213479/137191487-72da7036-10d5-4435-82a2-26f30f0e3aaa.gif)
+<img src="https://user-images.githubusercontent.com/52213479/137191487-72da7036-10d5-4435-82a2-26f30f0e3aaa.gif" height="500" />
 
 # Logic behind the app
 
