@@ -20,6 +20,8 @@ public class App extends Application {
                     CHANNEL_ID,
                     "Exmaple Service Channel",
                     NotificationManager.IMPORTANCE_HIGH
+
+
             );
             serviceChannel.setVibrationPattern(/*new long[] { 1000, 1000, 1000, 1000, 1000 }*/new long[]{ 0 });
             serviceChannel.enableVibration(true);
