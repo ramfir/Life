@@ -21,7 +21,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,9 +63,15 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
             if (position == viewHolder.getAdapterPosition())
                 stopService();
-            mEditor.remove(tasks.get(viewHolder.getAdapterPosition()).getTitle());
-            mEditor.apply();
+            /*mEditor.remove(tasks.get(viewHolder.getAdapterPosition()).getTitle());
+            mEditor.apply();*/
             tasks.remove(viewHolder.getAdapterPosition());
+            position--;
+            if (myService != null && myService.isServiceRunning()) {
+                myService.setPosition(position);
+            }
+            adapter.setSelected_position(position);
+            saveJobs();
             adapter.notifyDataSetChanged();
         }
     };
@@ -117,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
                 if (tasks.get(position).getDuration() == 0)
                     return;
                 stopService();
-                Intent serviceIntent = new Intent(getApplicationContext(),
-                                                  TimerService.class);
+                Intent serviceIntent = new Intent(getApplicationContext(), TimerService.class);
                 serviceIntent.putExtra(TAG_POSITION, position);
-                serviceIntent.putExtra(TAG_JOB, gson.toJson(tasks.get(position)));
+                //serviceIntent.putExtra(TAG_JOB, gson.toJson(tasks.get(position)));
+                serviceIntent.putExtra(TAG_JOB, gson.toJson(tasks));
                 startService(serviceIntent);
                 bindService();
             }
@@ -128,10 +136,15 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
     }
 
     private void initJobs() {
-        Map<String, ?> keys = mSharedPreferences.getAll();
+        String tasksInJson = mSharedPreferences.getString("tasks", "");
+        if (!tasksInJson.equals("")) {
+            Type tasksListType = new TypeToken<List<Task>>(){}.getType();
+            tasks = gson.fromJson(tasksInJson, tasksListType);
+        }
+        /*Map<String, ?> keys = mSharedPreferences.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet()) {
             tasks.add(gson.fromJson(entry.getValue().toString(), Task.class));
-        }
+        }*/
     }
 
     private void registerReceivers() {
@@ -211,10 +224,13 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
     }
 
     private void saveJobs() {
-        for (int i = 0; i < tasks.size(); i++) {
+        String tasksInJson = gson.toJson(tasks);
+        mEditor.putString("tasks", tasksInJson);
+        mEditor.apply();
+        /*for (int i = 0; i < tasks.size(); i++) {
             mEditor.putString(tasks.get(i).getTitle(), gson.toJson(tasks.get(i)));
         }
-        mEditor.apply();
+        mEditor.apply();*/
     }
 
     private void stopService() {
@@ -243,12 +259,13 @@ public class MainActivity extends AppCompatActivity implements MyDialog.MyDialog
         }
         Task newTask = new Task(title,
                                 date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds());
-        String json = gson.toJson(newTask);
+        /*String json = gson.toJson(newTask);
 
         mEditor.putString(title, json);
-        mEditor.apply();
+        mEditor.apply();*/
 
         tasks.add(newTask);
+        saveJobs();
         adapter.notifyDataSetChanged();
     }
 }

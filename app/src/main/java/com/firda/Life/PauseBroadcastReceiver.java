@@ -9,7 +9,10 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Locale;
 
 import static com.firda.Life.TimerService.TAG_JOB;
@@ -26,7 +29,11 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
         context.stopService(serviceIntent);
 
         int position = intent.getIntExtra(TAG_POSITION, 0);
-        Task task = gson.fromJson(intent.getStringExtra(TAG_JOB), Task.class);
+        Type tasksListType = new TypeToken<List<Task>>(){}.getType();
+        List<Task> tasks = gson.fromJson(intent.getStringExtra(TAG_JOB), tasksListType);
+
+        Task task = tasks.get(position); // gson.fromJson(intent.getStringExtra(TAG_JOB), Task.class);
+        //Task task = gson.fromJson(intent.getStringExtra(TAG_JOB), Task.class);
 
         String title = task.getTitle();//Task.tasks.get(position).getTitle();
         long length = task.getDuration();// Task.tasks.get(position).getDuration();
@@ -46,7 +53,8 @@ public class PauseBroadcastReceiver extends BroadcastReceiver {
 
         Intent actionPlayBroRec = new Intent(/*context, PlayBroadcastReceiver.class*/);
         actionPlayBroRec.putExtra(TAG_POSITION, position);
-        actionPlayBroRec.putExtra(TAG_JOB, gson.toJson(task));
+        //actionPlayBroRec.putExtra(TAG_JOB, gson.toJson(task));
+        actionPlayBroRec.putExtra(TAG_JOB, gson.toJson(tasks));
 
         actionPlayBroRec.setAction(PLAY_ACTION);
         PendingIntent penActionPlayBroRec = PendingIntent.getBroadcast(context, 0,

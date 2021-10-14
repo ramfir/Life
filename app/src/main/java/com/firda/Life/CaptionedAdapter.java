@@ -81,7 +81,7 @@ public class CaptionedAdapter extends
 
         cardView.setBackgroundColor(selected_position == position ? Color.parseColor("#FF008577") : Color.WHITE);
 
-        cardView.setOnClickListener(new View.OnClickListener() {
+        cardView.setOnClickListener(new View.OnClickListener() { // bad decision to create anonymous class every time onBindViewHolder is called because it will be called many times. Move to ViewHolder class setting onClick listener to cardview
             @Override
             public void onClick(View v) {
                 if (listener != null) {

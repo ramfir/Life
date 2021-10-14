@@ -19,7 +19,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -37,6 +40,7 @@ public class TimerService extends IntentService {
     private NotificationManager mNotificationManager;
 
     private int position = -1;
+    List<Task> tasks;
     private Task task;
     Gson gson = new Gson();
 
@@ -77,7 +81,10 @@ public class TimerService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         position = intent.getIntExtra(TAG_POSITION, -1);
         String jobJson = intent.getStringExtra(TAG_JOB);
-        task = gson.fromJson(jobJson, Task.class);
+
+        Type tasksListType = new TypeToken<List<Task>>(){}.getType();
+        tasks = gson.fromJson(jobJson, tasksListType);
+        task = tasks.get(position); // gson.fromJson(jobJson, Task.class);
 
         if (position == -1)
             return;
@@ -98,7 +105,8 @@ public class TimerService extends IntentService {
         Intent actionPauseBroRec = new Intent();
         actionPauseBroRec.setAction(PAUSE_ACTION);
         actionPauseBroRec.putExtra(TAG_POSITION, position);
-        actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
+        //actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
+        actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(tasks));
         PendingIntent penActionPauseBroRec = PendingIntent.getBroadcast(this,
                                                                         0,
                                                                         actionPauseBroRec,
@@ -108,7 +116,8 @@ public class TimerService extends IntentService {
                                                     penActionPauseBroRec);
         startForeground(1, notification);
         while (task.getDuration() >= 0) {
-            actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
+            //actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(task));
+            actionPauseBroRec.putExtra(TAG_JOB, gson.toJson(tasks));
             penActionPauseBroRec = PendingIntent.getBroadcast(this,
                                                               0,
                                                               actionPauseBroRec,
@@ -151,13 +160,13 @@ public class TimerService extends IntentService {
         return new NotificationCompat.Builder(this, App.CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(timeLeftFormatted)
-                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
                 .setVibrate(new long[]{0, 1000, 1000, 0, 1000})
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setProgress((int) task.getMaxProgress(), (int) task.getProgr(), false)
-                .setPriority(Notification.PRIORITY_LOW)
+                .setPriority(Notification.PRIORITY_MAX)
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", penActionStopBroRec)
                 .addAction(R.drawable.ic_pause_black_24dp, "Pause", penActionPauseBroRec)
                 .build();
@@ -166,6 +175,7 @@ public class TimerService extends IntentService {
     public int getPosition() {
         return position;
     }
+    public void setPosition(int position) { this.position = position; }
 
     public Task getTask() {
         return task;
@@ -188,8 +198,14 @@ public class TimerService extends IntentService {
 
     private void saveJob() {
         if (task != null) {
-            mEditor.putString(task.getTitle(), gson.toJson(task));
+            Type tasksListType = new TypeToken<List<Task>>(){}.getType();
+            String tasksInJson = mSharedPreferences.getString("tasks", "");
+            tasks = gson.fromJson(tasksInJson, tasksListType);
+            tasks.set(position, task);
+            mEditor.putString("tasks", gson.toJson(tasks));
             mEditor.apply();
+            /*mEditor.putString(task.getTitle(), gson.toJson(task));
+            mEditor.apply();*/
         }
     }
 
